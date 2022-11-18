@@ -4,11 +4,14 @@ Start Date: November 7th, 2022 */
 PImage plane; //plane image
 PImage fuel; //fuel image
 PImage helicopter; //helicopter image
+PImage leftPlane; //plane image
+PImage rightPlane; //plane image
+
 
 int width = 800; //width of the screen
 int height = 600; //height of the screen
 
-int lives = 3; //number of lives
+int lives = 2; //number of lives
 
 int score = 0; //score of the game
 
@@ -34,10 +37,14 @@ int speed = 10;
 
 float remainingFuel = 200;
 
+String direction = "straight";
+
 void setup() {
     plane = loadImage("plane.png");
     fuel = loadImage("fuel.png");
     helicopter = loadImage("helicopter.png");
+    leftPlane = loadImage("left-wing.png");
+    rightPlane = loadImage("right-wing.png");
     size(800, 600);
     }
 void draw() {
@@ -47,7 +54,17 @@ void draw() {
     rect(575, 0, 225, height);
     fill(119, 119, 119);
     rect(0, 500, 800, 100);
-    image(plane, planeX, height/1.75);
+    if (direction == "straight") {
+        image(plane, planeX, height/1.75);
+    } else if (direction == "left") {
+        image(leftPlane, planeX, height/1.75);
+        planeX -= 3;
+        planeRight -= 3;
+    } else if (direction == "right") {
+        image(rightPlane, planeX, height/1.75);
+        planeX += 3;
+        planeRight += 3;
+    }
     if (BulletY > 0) {
             shootBullet();
             BulletY -= speed;
@@ -83,17 +100,25 @@ void draw() {
     }
     fuelbar();
     // if the bullet rectangle hits the helicopter rectangle, the helicopter disappears and the bullet disappears
-    if (BulletX > fuelX && BulletX < fuelX + 30 && height/1.75 > fuelY && height/1.75 < fuelY + 60 || BulletRight > fuelX && BulletRight < fuelX+ 30 && height/1.75 > fuelY && height/1.75 < fuelY + 60) {
-        shoot = false;
-        fuelX = random(225, 545);
-        fuelY = -100;
-    }
-    // if the bullet rectangle hits the helicopter rectangle, the helicopter disappears and the bullet disappears
     if (BulletX > helicopterX && BulletX < helicopterX + 30 && BulletY > helicopterY && BulletY < helicopterY + 30 || BulletRight > helicopterX && BulletRight < helicopterX + 30 && BulletY > helicopterY && BulletY < helicopterY + 30) {
         shoot = false;
         helicopterX = random(225, 545);
+        while (helicopterX == fuelX) {
+            helicopterX = random(225, 545);
+        }
         helicopterY = -100;
         score += 100;
+        BulletY = -1;
+    }
+    // if the bullet rectangle hits the fuel rectangle, the fuel disappears and the bullet disappears
+    if (BulletX > fuelX && BulletX < fuelX + 30 && BulletY > fuelY && BulletY < fuelY + 30 || BulletRight > fuelX && BulletRight < fuelX + 30 && BulletY > fuelY && BulletY < fuelY + 30) {
+        shoot = false;
+        fuelX = random(225, 545);
+        while (fuelX == helicopterX) {
+            fuelX = random(225, 545);
+        }
+        fuelY = -110;
+        BulletY = -1;
     }
     // if the plane hits the helicopter at any angle, the game ends
     if (planeX > helicopterX && planeX < helicopterX + 30 && height/1.75 > helicopterY && height/1.75 < helicopterY + 30 || planeRight > helicopterX && planeRight < helicopterX + 30 && height/1.75 > helicopterY && height/1.75 < helicopterY + 30) {
@@ -102,6 +127,10 @@ void draw() {
             helicopterX = random(225, 545);
             helicopterY = -100;
         } else {
+            lives -= 1;
+            // draw rectangle over lives
+            fill(119, 119, 119);
+            rect(0, 500, 800, 100);
             fill(255, 0, 0);
             textSize(50);
             text("GAME OVER", 300, 300);
@@ -127,7 +156,7 @@ void draw() {
     // draw the lives
     fill(255, 255, 255);
     textSize(25);
-    text("Lives: " + lives, 25, 550, 250, 50);
+    text("Lives: " + (lives+1), 25, 550, 250, 50);
 }
 void keyPressed() {
     if (key == 'a') {
@@ -136,7 +165,8 @@ void keyPressed() {
         rect(planeX, height/1.75, 30, 30);
         planeX -= 10;
         planeRight -= 10;
-        image(plane, planeX, height/1.75);
+        image(leftPlane, planeX, height/1.75);
+        direction = "left";
     }
     if (key == 'd') {
         fill(57, 76, 180);
@@ -144,7 +174,15 @@ void keyPressed() {
         rect(planeX, height/1.75, 30, 30);
         planeX += 10;
         planeRight += 10;
+        image(rightPlane, planeX, height/1.75);
+        direction = "right";
+    }
+    if (key == 'w') {
+        fill(57, 76, 180);
+        stroke(57, 76, 180);
+        rect(planeX, height/1.75, 30, 30);
         image(plane, planeX, height/1.75);
+        direction = "straight";
     }
     if (key == ' ' && shoot == false) {
         BulletY = 342.85715;
@@ -220,4 +258,8 @@ void debug(){
     // draw a line at planeRight
     stroke(255, 0, 0);
     line(planeRight, 0, planeRight, height);
+}
+
+void playAgain() {
+    
 }
