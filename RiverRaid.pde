@@ -143,6 +143,7 @@ void draw() {
                 shipLeft = shipX;
                 shipTop = shipY;
                 shipBottom = shipY + 30;
+                framesPassed = 90;
             }
         }
     } else { // If the game is started...

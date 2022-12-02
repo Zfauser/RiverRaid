@@ -97,8 +97,8 @@ String waitTime;
     helicoptor = loadImage("helicoptor.png");
     ship = loadImage("ship.png");
     fuel = loadImage("fuel.png");
-    startscreen = loadImage("startscreen.png");
-    gameoverscreen = loadImage("gameoverscreen.png");
+    startscreen = loadImage("startscreen.png"); // ai generated start screen (DALLE 2)
+    gameoverscreen = loadImage("gameoverscreen.png"); // ai generated game over screen (DALLE 2)
 }
 
 // Draw Function
@@ -160,6 +160,7 @@ String waitTime;
                 shipLeft = shipX;
                 shipTop = shipY;
                 shipBottom = shipY + 30;
+                framesPassed = 90;
             }
         }
     } else { // If the game is started...
@@ -220,7 +221,7 @@ String waitTime;
                 helicoptorLeft = helicoptorX;
             }
         }
-        // if bullet hits ship
+        // if bullet hits ship, give player 100 points and move ship off screen
         if (bulletY < shipBottom && bulletY > shipTop && bulletRight > shipLeft && bulletLeft < shipRight) {
             score = score + 100;
             shoot = false;
@@ -273,6 +274,7 @@ String waitTime;
                 helicoptorLeft = helicoptorX;
             }
         }
+        // if plane hits ship, remove life
         if (planeRight > shipLeft && planeLeft < shipRight && planeBottom > shipTop && planeTop < shipBottom) {
             // make ship disappear
             lives = lives - 1;
@@ -290,6 +292,7 @@ String waitTime;
                 shipLeft = shipX;
             }
         }
+        // if plane hits fuel, add 100 to remaining fuel (out of 200) unless fuel is already at 200
         if (planeRight > fuelLeft && planeLeft < fuelRight && planeBottom > fuelTop && planeTop < fuelBottom) {
             // make fuel disappear
             remainingFuel = remainingFuel + 100;
@@ -309,16 +312,19 @@ String waitTime;
                 fuelLeft = fuelX;
             }
         }
-        fill(119, 119, 119);
+        fill(119, 119, 119); // grey
+        // this is the bar at the bottom of the screen
         rect(0, height-height/5, width, height/5);
-        fuelbar();
-        score();
-        lives();
-        controls();
+        fuelbar(); // display the fuel bar
+        score(); // display the score
+        lives(); // display the lives
+        controls(); // display the controls
     }
 }
 
+// draw the enemies (helicopter and ship) and the fuel
  public void drawEnemiesFuel() {
+    // randomize location of fuel
     if (fuelY > height) {
         fuelY = -25;
         fuelX = random(width/4, width/4*3 + (fuelX - fuelRight));
@@ -332,6 +338,7 @@ String waitTime;
             fuelRight = fuelX + 31;
             fuelLeft = fuelX;
         }
+    // display fuel
     } else {
         image(fuel, fuelX, fuelY);
         fuelY = fuelY + 3;
@@ -340,6 +347,7 @@ String waitTime;
         fuelTop = fuelY - 5;
         fuelBottom = fuelY + 51;
     }
+    // randomize location of helicopter
     if (helicoptorY > height) {
         helicoptorY = -50;
         helicoptorX = random(width/4, width/4*3 + (helicoptorX - helicoptorRight));
@@ -353,6 +361,7 @@ String waitTime;
             helicoptorRight = helicoptorX + 30;
             helicoptorLeft = helicoptorX;
         }
+    // display helicopter
     } else {
         image(helicoptor, helicoptorX, helicoptorY);
         helicoptorY = helicoptorY + 3;
@@ -361,6 +370,7 @@ String waitTime;
         helicoptorTop = helicoptorY - 2;
         helicoptorBottom = helicoptorY + 22;
     }
+    // randomize location of ship
     if (shipY > height) {
         shipY = -75;
         shipX = random(width/4, width/4*3 + (shipX - shipRight));
@@ -374,6 +384,7 @@ String waitTime;
             shipRight = shipX + 65;
             shipLeft = shipX;
         }
+    // display ship
     } else {
         image(ship, shipX, shipY);
         shipY = shipY + 3;
@@ -384,14 +395,18 @@ String waitTime;
     }
 }
 
+// if a key is pressed...
  public void keyPressed() {
+    // if the w key is pressed...
     if (key == 'w') {
-        direction = 0;
+        direction = 0; // set direction to 0 (straight)
+    // if the a key is pressed...
     } else if (key == 'a') {
-        direction = 1;
+        direction = 1; // set direction to 1 (left)
+    // if the d key is pressed...
     } else if (key == 'd') {
-        direction = 2;
-    } else if (key == ' ' && isGameOver == false && isGameStarted == true && shoot == false) {
+        direction = 2; // set direction to 2 (right)
+    } else if (key == ' ' && isGameOver == false && isGameStarted == true && shoot == false) { // if the space bar is pressed, shoot a bullet
         shoot = true;
         bulletX = planeX + 15;
         bulletY = planeY;
@@ -400,6 +415,7 @@ String waitTime;
     }
 }
 
+// this function displays the fuel bar at the bottom of the screen
  public void fuelbar() {
     textSize(20);
     fill(255, 255, 255);
@@ -415,12 +431,14 @@ String waitTime;
     }
 }
 
+// display score at bottom of screen
  public void score() {
     textSize(20);
     fill(255, 255, 255);
     text("Score: " + score, 50, 525);
 }
 
+// display lives at bottom of screen
  public void lives() {
     textSize(20);
     fill(255, 255, 255);
@@ -430,6 +448,7 @@ String waitTime;
     }
 }
 
+// display controls on the left side of the screen
  public void controls() {
     textSize(20);
     fill(255, 255, 255);
